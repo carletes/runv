@@ -12,6 +12,7 @@ import (
 	"github.com/hyperhq/runv/hypervisor/kvmtool"
 	"github.com/hyperhq/runv/hypervisor/libvirt"
 	"github.com/hyperhq/runv/hypervisor/qemu"
+	"github.com/hyperhq/runv/hypervisor/vmm"
 	"github.com/hyperhq/runv/hypervisor/xen"
 	"github.com/hyperhq/runv/hypervisor/xenpv"
 	"github.com/hyperhq/runv/lib/vsock"
@@ -68,6 +69,12 @@ func Probe(driver string) (hd hypervisor.HypervisorDriver, err error) {
 		if kd != nil {
 			glog.V(1).Infof("Driver \"kvmtool\" loaded")
 			return kd, nil
+		}
+	case "vmm":
+		vd := vmm.InitDriver()
+		if vd != nil {
+			glog.V(1).Infof("Driver \"vmm\" loaded")
+			return vd, nil
 		}
 	}
 

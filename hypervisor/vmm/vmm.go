@@ -1,96 +1,118 @@
+/*
+Package vmm provides support for OpenBSD's vmm hypervisor.
+*/
 package vmm
 
 import (
 	"errors"
+	"os"
 
+	"github.com/golang/glog"
 	"github.com/hyperhq/runv/hypervisor"
 	"github.com/hyperhq/runv/hypervisor/types"
 )
 
-type VmmDriver struct {
+const (
+	vmctl = "/usr/sbin/vmctl"
+)
+
+// Driver implements the hypervisor.HypervisorDriver interface.
+type Driver struct {
+	executable string
 }
 
-type VmmContext struct {
-	driver *VmmDriver
+// Context implements the hypervisor.DriverContext interface.
+type Context struct {
+	driver *Driver
 }
 
-func InitDriver() *VmmDriver {
-	// Check that `vmctl` exists, etc.
-	return &VmmDriver{}
+func InitDriver() *Driver {
+	_, err := os.Stat(vmctl)
+	if err != nil {
+		glog.Errorf("cannot initialize driver: %v", err)
+		return nil
+	}
+	return &Driver{
+		executable: vmctl,
+	}
 }
 
-func (vd *VmmDriver) Name() string {
+func (vd *Driver) Name() string {
 	return "vmm"
 }
 
-func (vd *VmmDriver) InitContext(homeDir string) hypervisor.DriverContext {
-	return &VmmContext{
+func (vd *Driver) InitContext(homeDir string) hypervisor.DriverContext {
+	glog.Errorf("InitContext(%s): Entering", homeDir)
+	return &Context{
 		driver: vd,
 	}
 }
 
-func (vd *VmmDriver) LoadContext(persisted map[string]interface{}) (hypervisor.DriverContext, error) {
+func (vd *Driver) LoadContext(persisted map[string]interface{}) (hypervisor.DriverContext, error) {
 	if t, ok := persisted["hypervisor"]; !ok || t != "empty" {
 		return nil, errors.New("wrong driver type in persist info")
 	}
 	return nil, errors.New("XXX Implement me")
 }
 
-func (vc *VmmDriver) SupportLazyMode() bool {
+func (vd *Driver) SupportLazyMode() bool {
 	return false
 }
 
-func (vc *VmmDriver) SupportVmSocket() bool {
+func (vd *Driver) SupportVmSocket() bool {
 	return false
 }
 
-func (vc *VmmContext) Launch(ctx *hypervisor.VmContext) {
+func (vc *Context) Launch(ctx *hypervisor.VmContext) {
+	glog.Errorf("Launch(%v): Entering", ctx)
 }
 
-func (vc *VmmContext) Associate(ctx *hypervisor.VmContext) {
+func (vc *Context) Associate(ctx *hypervisor.VmContext) {
+	glog.Errorf("Associate(%v): Entering", ctx)
 }
 
-func (vc *VmmContext) Dump() (map[string]interface{}, error) {
+func (vc *Context) Dump() (map[string]interface{}, error) {
+	glog.Errorf("Dump(%v): Entering")
 	return nil, errors.New("XXX Implement me")
 }
 
-func (vc *VmmContext) AddDisk(ctx *hypervisor.VmContext, sourceType string, blockInfo *hypervisor.DiskDescriptor, result chan<- hypervisor.VmEvent) {
+func (vc *Context) AddDisk(ctx *hypervisor.VmContext, sourceType string, blockInfo *hypervisor.DiskDescriptor, result chan<- hypervisor.VmEvent) {
 }
 
-func (vc *VmmContext) RemoveDisk(ctx *hypervisor.VmContext, blockInfo *hypervisor.DiskDescriptor, callback hypervisor.VmEvent, result chan<- hypervisor.VmEvent) {
+func (vc *Context) RemoveDisk(ctx *hypervisor.VmContext, blockInfo *hypervisor.DiskDescriptor, callback hypervisor.VmEvent, result chan<- hypervisor.VmEvent) {
 }
 
-func (vc *VmmContext) AddNic(ctx *hypervisor.VmContext, host *hypervisor.HostNicInfo, guest *hypervisor.GuestNicInfo, result chan<- hypervisor.VmEvent) {
+func (vc *Context) AddNic(ctx *hypervisor.VmContext, host *hypervisor.HostNicInfo, guest *hypervisor.GuestNicInfo, result chan<- hypervisor.VmEvent) {
 }
 
-func (vc *VmmContext) RemoveNic(ctx *hypervisor.VmContext, n *hypervisor.InterfaceCreated, callback hypervisor.VmEvent, result chan<- hypervisor.VmEvent) {
+func (vc *Context) RemoveNic(ctx *hypervisor.VmContext, n *hypervisor.InterfaceCreated, callback hypervisor.VmEvent, result chan<- hypervisor.VmEvent) {
 }
 
-func (vc *VmmContext) SetCpus(ctx *hypervisor.VmContext, cpus int) error {
+func (vc *Context) SetCpus(ctx *hypervisor.VmContext, cpus int) error {
 	return errors.New("XXX Implement me")
 }
 
-func (vc *VmmContext) AddMem(ctx *hypervisor.VmContext, slot, size int) error {
+func (vc *Context) AddMem(ctx *hypervisor.VmContext, slot, size int) error {
 	return errors.New("XXX Implement me")
 }
 
-func (vc *VmmContext) Save(ctx *hypervisor.VmContext, path string) error {
+func (vc *Context) Save(ctx *hypervisor.VmContext, path string) error {
 	return errors.New("XXX Implement me")
 }
 
-func (vc *VmmContext) Shutdown(ctx *hypervisor.VmContext) {
+func (vc *Context) Shutdown(ctx *hypervisor.VmContext) {
 }
 
-func (vc *VmmContext) Kill(ctx *hypervisor.VmContext) {
+func (vc *Context) Kill(ctx *hypervisor.VmContext) {
 }
 
-func (vc *VmmContext) Pause(ctx *hypervisor.VmContext, pause bool) error {
+func (vc *Context) Pause(ctx *hypervisor.VmContext, pause bool) error {
 	return errors.New("XXX Implement me")
 }
 
-func (vc *VmmContext) Stats(ctx *hypervisor.VmContext) (*types.PodStats, error) {
+func (vc *Context) Stats(ctx *hypervisor.VmContext) (*types.PodStats, error) {
 	return nil, errors.New("XXX Implement me")
 }
 
-func (vc *VmmContext) Close() {
+func (vc *Context) Close() {
 }
